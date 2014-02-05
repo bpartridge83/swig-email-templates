@@ -2,12 +2,15 @@ var swig = require("swig")
   , juiceDocument = require("juice2").juiceDocument
   , path = require("path")
   , jsdom = require("jsdom")
-  , rootFolder = path.join(__dirname, "templates");
+  , rootFolder = path.join(__dirname, "templates")
+  , juiceOptions;
 
 module.exports = init;
 
 function init(options, cb) {
   rootFolder = options.root || rootFolder;
+
+  juiceOptions = options.juice || {};
 
   cb(null, render);
     
@@ -26,7 +29,8 @@ function init(options, cb) {
           if (err) return cb(err);
           if (urlRewriteFn) rewriteUrls(document, urlRewriteFn);
           var fileUrl = "file://" + path.resolve(process.cwd(), path.join(options.root, templateName));
-          juiceDocument(document, { url: fileUrl }, function(err) {
+          juiceOptions.url = fileUrl;
+          juiceDocument(document, juiceOptions, function(err) {
             if (err) {
               // free the associated memory
               // with lazily created parentWindow
